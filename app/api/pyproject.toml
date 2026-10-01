@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "order-api"
+version = "0.1.0"
+description = "HTTP API калькулятора заказов"
+requires-python = ">=3.10"
+dependencies = [
+    "order-core",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
