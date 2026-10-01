@@ -1,0 +1,8 @@
+# инструменты разработки: тесты, покрытие, линтеры, сборка пакета
+-c app/api/requirements.lock
+pytest
+pytest-cov
+httpx
+ruff
+mypy
+build
