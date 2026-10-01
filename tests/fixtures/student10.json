@@ -1,0 +1,7 @@
+{
+  "items": [
+    {"sku": "coffee", "price": 150, "quantity": 2},
+    {"sku": "croissant", "price": 90, "quantity": 3}
+  ],
+  "promo_code": "STUDENT10"
+}

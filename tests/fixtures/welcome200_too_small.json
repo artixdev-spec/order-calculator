@@ -1,0 +1,6 @@
+{
+  "items": [
+    {"sku": "coffee", "price": 150, "quantity": 2}
+  ],
+  "promo_code": "WELCOME200"
+}

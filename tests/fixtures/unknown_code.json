@@ -1,0 +1,6 @@
+{
+  "items": [
+    {"sku": "coffee", "price": 150, "quantity": 1}
+  ],
+  "promo_code": "FREE100"
+}
