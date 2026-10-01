@@ -1,3 +1,4 @@
 # прямые зависимости приложения (order-core ставится из packages/core)
 fastapi>=0.110
 uvicorn[standard]>=0.29
+psycopg[binary]>=3.1

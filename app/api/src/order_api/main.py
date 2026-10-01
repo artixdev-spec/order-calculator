@@ -3,13 +3,15 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from order_api.promo_repository import InMemoryPromoCodeRepository, PromoCodeRepository
+from order_api.promo_repository import PromoCodeRepository
 from order_api.schemas import ErrorOut, OrderIn, PromoCodeOut, ReceiptOut
+from order_api.settings import promo_repository_from_env
 from order_core import OrderError, calculate_receipt
 
 
 def create_app(promo_codes: PromoCodeRepository | None = None) -> FastAPI:
-    repository = promo_codes or InMemoryPromoCodeRepository()
+    """Собрать приложение. Без явного хранилища — выбор по ``DATABASE_URL``."""
+    repository = promo_codes if promo_codes is not None else promo_repository_from_env()
     app = FastAPI(title="Order calculator", version="0.1.0")
 
     @app.exception_handler(OrderError)
