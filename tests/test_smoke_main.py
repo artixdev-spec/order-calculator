@@ -4,6 +4,7 @@
 и на каких данных скрипт завершается с ошибкой.
 """
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -15,10 +16,12 @@ FIXTURES = Path(__file__).parent / "fixtures"
 
 
 def run_main(fixture: str) -> subprocess.CompletedProcess:
+    env = {**os.environ, "PYTHONPATH": str(ROOT / "packages" / "core" / "src")}
     return subprocess.run(
         [sys.executable, str(ROOT / "main.py"), str(FIXTURES / fixture)],
         capture_output=True,
         text=True,
+        env=env,
     )
 
 
