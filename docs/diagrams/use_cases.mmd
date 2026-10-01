@@ -1,0 +1,24 @@
+%% UML use case diagram в Mermaid: акторы — слева/справа,
+%% прецеденты — овалы, граница системы — рамка, include — пунктир.
+flowchart LR
+    customer["👤 Покупатель"]
+    marketer["👤 Маркетолог"]
+
+    subgraph system["Order calculator"]
+        quote(["Рассчитать стоимость заказа"])
+        promo(["Применить промокод"])
+        volume(["Получить скидку за объём"])
+        delivery(["Рассчитать доставку"])
+        list(["Посмотреть промокоды"])
+    end
+
+    db[("PostgreSQL")]
+    manage(["Завести промокод"])
+
+    customer --- quote
+    customer --- list
+    quote -. "«include»" .-> volume
+    quote -. "«include»" .-> delivery
+    promo -. "«extend»" .-> quote
+    marketer --- manage
+    manage --- db

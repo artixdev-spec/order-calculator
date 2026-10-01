@@ -1,0 +1,12 @@
+C4Context
+    title Калькулятор заказов — диаграмма контекста (C4, уровень 1)
+
+    Person(customer, "Покупатель", "Клиентское приложение магазина или человек")
+    Person(marketer, "Маркетолог", "Заводит промокоды")
+
+    System(calculator, "Order calculator", "HTTP API: расчёт стоимости заказа со скидками, промокодами и доставкой")
+    SystemDb(db, "PostgreSQL", "Таблица promo_codes")
+
+    Rel(customer, calculator, "POST /quote, GET /promo-codes", "HTTP/JSON")
+    Rel(calculator, db, "Читает промокоды", "SQL")
+    Rel(marketer, db, "Добавляет промокоды", "SQL")

@@ -1,0 +1,25 @@
+sequenceDiagram
+    title Расчёт заказа с промокодом (POST /quote)
+    actor Customer as Покупатель
+    participant API as order_api
+    participant Repo as PromoCodeRepository
+    participant DB as PostgreSQL
+    participant Core as order_core
+
+    Customer->>API: POST /quote {items, promo_code}
+    API->>API: валидация структуры (pydantic)
+    alt структура неверна
+        API-->>Customer: 422 (ошибка валидации)
+    end
+    API->>Repo: all()
+    Repo->>DB: SELECT code, kind, value, min_subtotal
+    DB-->>Repo: строки promo_codes
+    Repo-->>API: {code: PromoCode}
+    API->>Core: calculate_receipt(order, promo_codes)
+    alt позиция некорректна / код неизвестен / сумма мала
+        Core-->>API: OrderError
+        API-->>Customer: 422 {error, detail}
+    else расчёт успешен
+        Core-->>API: Receipt
+        API-->>Customer: 200 {subtotal, discount, delivery, total}
+    end
