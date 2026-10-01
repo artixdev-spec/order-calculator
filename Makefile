@@ -11,7 +11,7 @@ TEST_DATABASE_URL ?= postgresql://orders:orders@localhost:5432/orders
 
 .DEFAULT_GOAL := help
 .PHONY: help venv install lock run test test-integration coverage lint format \
-	typecheck check build-core docker-build up down logs clean
+	typecheck check build-core docs docker-build up down logs clean
 
 help: ## показать список команд
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -30,6 +30,7 @@ lock: $(PY) ## пересобрать lock-файлы из *.in
 	$(PY) -m pip install uv
 	$(BIN)/uv pip compile --python-version 3.10 app/api/requirements.in -o app/api/requirements.lock
 	$(BIN)/uv pip compile --python-version 3.10 requirements-dev.in -o requirements-dev.lock
+	$(BIN)/uv pip compile --python-version 3.10 docs/requirements.in -o docs/requirements.lock
 
 run: ## запустить API локально на http://localhost:8000
 	$(BIN)/uvicorn order_api.main:app --reload --port 8000
@@ -60,6 +61,11 @@ check: lint typecheck test ## все проверки: стиль, типы, т�
 build-core: ## собрать пакет order-core в dist/ (без запуска приложения)
 	$(PY) -m build packages/core --outdir dist
 
+docs: $(PY) ## собрать документацию в docs/_build/html (предупреждения = ошибки)
+	$(PY) -m pip install -q -r docs/requirements.lock
+	$(BIN)/sphinx-build -W --keep-going -b html docs docs/_build/html
+	@echo "Откройте docs/_build/html/index.html"
+
 docker-build: ## собрать Docker-образ API
 	$(COMPOSE) build
 
@@ -73,6 +79,6 @@ logs: ## логи контейнеров
 	$(COMPOSE) logs -f
 
 clean: ## удалить окружение, кэши и артефакты сборки
-	rm -rf $(VENV) dist htmlcov .coverage .pytest_cache .mypy_cache .ruff_cache
+	rm -rf $(VENV) dist htmlcov .coverage .pytest_cache .mypy_cache .ruff_cache docs/_build
 	find . -name __pycache__ -type d -prune -exec rm -rf {} +
 	find . -name '*.egg-info' -type d -prune -exec rm -rf {} +

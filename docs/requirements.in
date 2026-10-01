@@ -1,0 +1,6 @@
+# сборка документации (autodoc импортирует order_api, поэтому нужны и его зависимости)
+-c ../app/api/requirements.lock
+-r ../app/api/requirements.in
+sphinx
+myst-parser
+sphinxcontrib-mermaid
