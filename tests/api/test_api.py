@@ -72,7 +72,10 @@ def test_promo_codes_come_from_repository():
     client = TestClient(create_app(repository))
 
     assert [p["code"] for p in client.get("/promo-codes").json()] == ["HALF"]
-    order = {"items": [{"sku": "tea", "price": 1000, "quantity": 1}], "promo_code": "HALF"}
+    order = {
+        "items": [{"sku": "tea", "price": 1000, "quantity": 1}],
+        "promo_code": "HALF",
+    }
     assert client.post("/quote", json=order).json()["discount"] == "500.00"
     order["promo_code"] = "STUDENT10"
     assert client.post("/quote", json=order).status_code == 422

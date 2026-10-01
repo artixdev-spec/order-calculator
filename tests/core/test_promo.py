@@ -34,7 +34,9 @@ def test_code_below_min_subtotal_is_not_applicable():
 
 
 def test_find_existing_code():
-    assert find_promo_code("STUDENT10", DEFAULT_PROMO_CODES).kind is DiscountKind.PERCENT
+    assert (
+        find_promo_code("STUDENT10", DEFAULT_PROMO_CODES).kind is DiscountKind.PERCENT
+    )
 
 
 def test_find_unknown_code_raises():
