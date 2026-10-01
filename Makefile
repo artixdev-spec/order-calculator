@@ -1,13 +1,17 @@
 # Единая точка входа для команд проекта. `make help` — список целей.
-# Требования: Python 3.10 (см. .python-version), GNU Make; для docker-целей — Docker.
+# Требования: Python 3.10 (см. .python-version), GNU Make; для docker-целей и
+# test-integration — Docker с Compose v2.
 
-PYTHON ?= python3
-VENV   := .venv
-BIN    := $(VENV)/bin
-PY     := $(BIN)/python
+PYTHON  ?= python3
+VENV    := .venv
+BIN     := $(VENV)/bin
+PY      := $(BIN)/python
+COMPOSE := docker compose -f infra/compose.yaml
+TEST_DATABASE_URL ?= postgresql://orders:orders@localhost:5432/orders
 
 .DEFAULT_GOAL := help
-.PHONY: help venv install lock run test coverage lint format typecheck check build-core clean
+.PHONY: help venv install lock run test test-integration coverage lint format \
+	typecheck check build-core docker-build up down logs clean
 
 help: ## показать список команд
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -30,8 +34,12 @@ lock: $(PY) ## пересобрать lock-файлы из *.in
 run: ## запустить API локально на http://localhost:8000
 	$(BIN)/uvicorn order_api.main:app --reload --port 8000
 
-test: ## запустить тесты
+test: ## запустить тесты (без базы данных)
 	$(PY) -m pytest
+
+test-integration: ## интеграционные тесты с PostgreSQL в контейнере
+	$(COMPOSE) up -d --wait db
+	DATABASE_URL=$(TEST_DATABASE_URL) $(PY) -m pytest tests/integration -v
 
 coverage: ## тесты с отчётом о покрытии (терминал + htmlcov/)
 	$(PY) -m pytest --cov --cov-report=term-missing --cov-report=html
@@ -51,6 +59,18 @@ check: lint typecheck test ## все проверки: стиль, типы, т�
 
 build-core: ## собрать пакет order-core в dist/ (без запуска приложения)
 	$(PY) -m build packages/core --outdir dist
+
+docker-build: ## собрать Docker-образ API
+	$(COMPOSE) build
+
+up: ## поднять API и PostgreSQL (http://localhost:8000/docs)
+	$(COMPOSE) up -d --build --wait
+
+down: ## остановить контейнеры (данные БД сохраняются в volume)
+	$(COMPOSE) down
+
+logs: ## логи контейнеров
+	$(COMPOSE) logs -f
 
 clean: ## удалить окружение, кэши и артефакты сборки
 	rm -rf $(VENV) dist htmlcov .coverage .pytest_cache .mypy_cache .ruff_cache
